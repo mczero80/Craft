@@ -16,6 +16,7 @@
 #include "matrix.h"
 #include "noise.h"
 #include "sign.h"
+#include "sound.h"
 #include "tinycthread.h"
 #include "util.h"
 #include "world.h"
@@ -2417,10 +2418,26 @@ void handle_movement(double dt) {
         float m = dt * 1.0;
         g->ortho = glfwGetKey(g->window, CRAFT_KEY_ORTHO) ? 64 : 0;
         g->fov = glfwGetKey(g->window, CRAFT_KEY_ZOOM) ? 15 : 65;
-        if (glfwGetKey(g->window, CRAFT_KEY_FORWARD)) sz--;
-        if (glfwGetKey(g->window, CRAFT_KEY_BACKWARD)) sz++;
-        if (glfwGetKey(g->window, CRAFT_KEY_LEFT)) sx--;
-        if (glfwGetKey(g->window, CRAFT_KEY_RIGHT)) sx++;
+        if (glfwGetKey(g->window, CRAFT_KEY_FORWARD))
+        {
+            sz--;
+            play_step();
+        }
+        if (glfwGetKey(g->window, CRAFT_KEY_BACKWARD))
+        {
+            sz++;
+            play_step();
+        }
+        if (glfwGetKey(g->window, CRAFT_KEY_LEFT))
+        {
+            sx--;
+            play_step();
+        }
+        if (glfwGetKey(g->window, CRAFT_KEY_RIGHT))
+        {
+            sx++;
+            play_step();
+        }
         if (glfwGetKey(g->window, GLFW_KEY_LEFT)) s->rx -= m;
         if (glfwGetKey(g->window, GLFW_KEY_RIGHT)) s->rx += m;
         if (glfwGetKey(g->window, GLFW_KEY_UP)) s->ry += m;
@@ -2698,6 +2715,9 @@ int main(int argc, char **argv) {
     sky_attrib.sampler = glGetUniformLocation(program, "sampler");
     sky_attrib.timer = glGetUniformLocation(program, "timer");
 
+    // Init Audio
+    init_Audio();
+
     // CHECK COMMAND LINE ARGUMENTS //
     if (argc == 2 || argc == 3) {
         g->mode = MODE_ONLINE;
@@ -2959,5 +2979,6 @@ int main(int argc, char **argv) {
 
     glfwTerminate();
     curl_global_cleanup();
+    close_Audio();
     return 0;
 }

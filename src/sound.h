@@ -2,11 +2,14 @@
 #include "SDL2/SDL_mixer.h"
 #include <stdio.h>
 
-static const char *walkSoundFile = "./sounds/walk.ogg";
-Mix_Chunk *walkSound;
+void unblockChannel(int chan);
 
 int init_Audio();
 
 void close_Audio();
 
-int play_step();
+int playSound(Mix_Chunk *effect);
+
+int playWalkSound();
+
+

@@ -2421,22 +2421,22 @@ void handle_movement(double dt) {
         if (glfwGetKey(g->window, CRAFT_KEY_FORWARD))
         {
             sz--;
-            play_step();
+            playWalkSound();
         }
         if (glfwGetKey(g->window, CRAFT_KEY_BACKWARD))
         {
             sz++;
-            play_step();
+            playWalkSound();
         }
         if (glfwGetKey(g->window, CRAFT_KEY_LEFT))
         {
             sx--;
-            play_step();
+            playWalkSound();
         }
         if (glfwGetKey(g->window, CRAFT_KEY_RIGHT))
         {
             sx++;
-            play_step();
+            playWalkSound();
         }
         if (glfwGetKey(g->window, GLFW_KEY_LEFT)) s->rx -= m;
         if (glfwGetKey(g->window, GLFW_KEY_RIGHT)) s->rx += m;
@@ -2716,7 +2716,8 @@ int main(int argc, char **argv) {
     sky_attrib.timer = glGetUniformLocation(program, "timer");
 
     // Init Audio
-    init_Audio();
+    if(init_Audio()==1)
+        exit(EXIT_FAILURE);
 
     // CHECK COMMAND LINE ARGUMENTS //
     if (argc == 2 || argc == 3) {

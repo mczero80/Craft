@@ -1,20 +1,22 @@
 #include "sound.h"
 
-//gcc -I /usr/include/SDL -o test test.cpp -lSDL
-
-int blocked = 0;
-
 int audio_rate = 44100;
 Uint16 audio_format = AUDIO_S16SYS;
 int audio_channels = 2;
 int audio_buffers = 4096;
 
-int blockedChannel = 0;
+static const char *walkSoundFile = "./sounds/walk.ogg";
+Mix_Chunk *walkSound;
 
-void step(int chan)
+int walkEffectChannelBlocked = 99; // 99 = not blocked, 0-16 blocked
+
+void unblockChannel(int chan)
 {
-    blocked = !blocked;
+    if (chan == walkEffectChannelBlocked)
+        walkEffectChannelBlocked = 99;
 }
+
+
 
 int init_Audio()
 {
@@ -23,7 +25,7 @@ int init_Audio()
     if( SDL_Init(SDL_INIT_AUDIO ) < 0 )
     {
         printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
-        return 0;
+        return 1;
     }
     else
     {
@@ -32,15 +34,15 @@ int init_Audio()
         {
             printf("Could not initialize mixer (result: %d).\n", result);
             printf("Mix_Init: %s\n", Mix_GetError());
-            return 0;
+            return 1;
         }
         else
         {
             walkSound = Mix_LoadWAV(walkSoundFile);
-            void (*stepFunc)(chan);
-            stepFunc = (void *)step;
-            Mix_ChannelFinished(stepFunc);
-            return 1;
+            void (*pUnblockChannel)(int);
+            pUnblockChannel = (void *)unblockChannel;
+            Mix_ChannelFinished(pUnblockChannel);
+            return 0;
         }
     }
 }
@@ -51,12 +53,16 @@ void close_Audio()
     SDL_Quit();
 }
 
-int play_step()
+int playSound(Mix_Chunk *effect)
 {
-    if(!blocked)
+    Mix_PlayChannel(-1, effect, 0);
+}
+
+int playWalkSound()
+{
+    if(walkEffectChannelBlocked == 99)
     {
-        Mix_PlayChannel(0, walkSound, 0);
-        blocked = 1;
+        walkEffectChannelBlocked = Mix_PlayChannel(0, walkSound, 0);
     }
 }
 

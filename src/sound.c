@@ -2,10 +2,24 @@
 
 //gcc -I /usr/include/SDL -o test test.cpp -lSDL
 
-Mix_Chunk *step;
+int blocked = 0;
+
+int audio_rate = 44100;
+Uint16 audio_format = AUDIO_S16SYS;
+int audio_channels = 2;
+int audio_buffers = 4096;
+
+int blockedChannel = 0;
+
+void step(int chan)
+{
+    blocked = !blocked;
+}
 
 int init_Audio()
 {
+    int result = 0;
+    int flags = MIX_INIT_OGG;
     if( SDL_Init(SDL_INIT_AUDIO ) < 0 )
     {
         printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
@@ -13,14 +27,19 @@ int init_Audio()
     }
     else
     {
-        if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
+        Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers);
+        if (flags != (result = Mix_Init(flags)))
         {
-            printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
+            printf("Could not initialize mixer (result: %d).\n", result);
+            printf("Mix_Init: %s\n", Mix_GetError());
             return 0;
         }
         else
         {
-            step = Mix_LoadWAV("sounds/walking-bare-feet.wav");
+            walkSound = Mix_LoadWAV(walkSoundFile);
+            void (*stepFunc)(chan);
+            stepFunc = (void *)step;
+            Mix_ChannelFinished(stepFunc);
             return 1;
         }
     }
@@ -28,39 +47,17 @@ int init_Audio()
 
 void close_Audio()
 {
-    //Free the sound effects
-    Mix_FreeChunk( step );
-    step = NULL;
-
-    //Free the music
-    //Mix_FreeMusic( gMusic );
-    //gMusic = NULL;
-
-    //Quit SDL subsystems
-    Mix_Quit();
+    Mix_FreeChunk(walkSound);
     SDL_Quit();
 }
 
 int play_step()
 {
-    //int Mix_SetPosition(int channel, Sint16 angle, Uint8 distance);
-
-    int SChannel = 0;
-
-    if (step == NULL)
+    if(!blocked)
     {
-        Mix_FreeChunk(step);
-        return 1;
-    }
-    else
-    {
-        SChannel = Mix_PlayChannel(-1, step, 0);
-
-        while(Mix_Playing(SChannel) != 0);
-        {
-            Mix_FreeChunk(step);
-        }
-
-        return 0;
+        Mix_PlayChannel(0, walkSound, 0);
+        blocked = 1;
     }
 }
+
+

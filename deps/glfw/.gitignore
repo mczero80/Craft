@@ -31,7 +31,6 @@ src/libglfw.so
 src/libglfw.so.3
 src/libglfw.so.3.0
 src/libglfw.dylib
-src/libglfw.dylib
 src/libglfw.3.dylib
 src/libglfw.3.0.dylib
 src/libglfw3.a
@@ -68,3 +67,4 @@ tests/title
 tests/version
 tests/windows
 
+/GLFW.cbp
